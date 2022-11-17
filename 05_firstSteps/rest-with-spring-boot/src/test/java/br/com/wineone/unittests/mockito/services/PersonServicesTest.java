@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import br.com.wineone.data.vo.v1.PersonVO;
 import br.com.wineone.mocks.MockPerson;
 import br.com.wineone.models.Person;
 import br.com.wineone.repositories.PersonRepository;
@@ -58,12 +59,47 @@ class PersonServicesTest {
 
 	@Test
 	void testCreate() {
-		fail("Not yet implemented");
+		Person entity = input.getMockPerson(1L);
+		
+		Person persisted = input.getMockPerson(1L);
+		persisted.setId(1L);
+		
+		PersonVO pvo = input.getMockVO(1L);
+		
+		when(repository.save(entity)).thenReturn(persisted);
+		var result = service.create(pvo);
+		assertNotNull(result);
+		assertNotNull(result.getKey());
+		assertNotNull(result.getLinks());
+		assertTrue(result.toString().equals("links: [</api/person/v1/1>;rel=\"self\"]"));
+		assertEquals(result.getAddress(),"");
+		assertEquals(result.getFirstName(),"");
+		assertEquals(result.getGender(),"");
+		assertEquals(result.getLastName(),"");
 	}
 
 	@Test
 	void testUpdate() {
-		fail("Not yet implemented");
+		Person entity = input.getMockPerson(1L);
+		
+		Person persisted = input.getMockPerson(1L);
+		persisted.setId(1L);
+		
+		PersonVO pvo = input.getMockVO(1L);
+		
+		when(repository.findById(1L)).thenReturn(Optional.of(entity));
+		when(repository.save(entity)).thenReturn(persisted);
+		
+		when(repository.save(entity)).thenReturn(persisted);
+		var result = service.update(pvo);
+		assertNotNull(result);
+		assertNotNull(result.getKey());
+		assertNotNull(result.getLinks());
+		assertTrue(result.toString().equals("links: [</api/person/v1/1>;rel=\"self\"]"));
+		assertEquals(result.getAddress(),"");
+		assertEquals(result.getFirstName(),"");
+		assertEquals(result.getGender(),"");
+		assertEquals(result.getLastName(),"");
 	}
 
 	@Test

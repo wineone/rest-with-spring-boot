@@ -1,5 +1,8 @@
 package br.com.wineone.mocks;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.com.wineone.data.vo.v1.PersonVO;
 import br.com.wineone.models.Person;
 
@@ -22,5 +25,19 @@ public class MockPerson {
 		p.setKey(id);
 		p.setLastName("");
 		return p;
+	}
+	
+	public static List<Person> getMockListPerson(){
+		List persons = new ArrayList<Person>();
+		for(int i = 0; i < 14; i++) {
+			Person per = new Person();
+			per.setAddress(""+i);
+			per.setFirstName(""+i);
+			per.setGender(""+i);
+			per.setId(i);
+			per.setLastName(""+i);
+			persons.add(per);
+		}
+		return persons;
 	}
 }

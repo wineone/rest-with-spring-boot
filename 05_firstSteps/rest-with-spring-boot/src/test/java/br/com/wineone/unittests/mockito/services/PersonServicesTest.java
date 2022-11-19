@@ -3,6 +3,7 @@ package br.com.wineone.unittests.mockito.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.wineone.data.vo.v1.PersonVO;
+import br.com.wineone.exceptions.RequiredObjectIsNullException;
 import br.com.wineone.mocks.MockPerson;
 import br.com.wineone.models.Person;
 import br.com.wineone.repositories.PersonRepository;
@@ -54,7 +56,32 @@ class PersonServicesTest {
 
 	@Test
 	void testFindAll() {
-		fail("Not yet implemented");
+		List<Person> persons = input.getMockListPerson();
+		when(repository.findAll()).thenReturn(persons);
+		var result = service.findAll();
+		assertNotNull(result);
+		
+		PersonVO p1 = result.get(1);
+		
+		assertNotNull(p1.getKey());
+		assertNotNull(p1.getLinks());
+		assertTrue(p1.toString().equals("links: [</api/person/v1/1>;rel=\"self\"]"));
+		assertEquals(p1.getAddress(),"1");
+		assertEquals(p1.getFirstName(),"1");
+		assertEquals(p1.getGender(),"1");
+		assertEquals(p1.getLastName(),"1");
+		
+		PersonVO p7 = result.get(7);
+		
+		assertNotNull(p7.getKey());
+		assertNotNull(p7.getLinks());
+		assertTrue(p7.toString().equals("links: [</api/person/v1/7>;rel=\"self\"]"));
+		assertEquals(p7.getAddress(),"7");
+		assertEquals(p7.getFirstName(),"7");
+		assertEquals(p7.getGender(),"7");
+		assertEquals(p7.getLastName(),"7");
+		
+		
 	}
 
 	@Test
@@ -77,7 +104,19 @@ class PersonServicesTest {
 		assertEquals(result.getGender(),"");
 		assertEquals(result.getLastName(),"");
 	}
-
+	
+	@Test
+	void testCreateWithNullPerson() {
+		RequiredObjectIsNullException exception = assertThrows(RequiredObjectIsNullException.class, () -> {
+			service.create(null);
+		});
+		
+		String expectedMessage = "It is not allowed to write a null object!";
+		String actualMessage = exception.getMessage();
+		
+		assertTrue(expectedMessage.equals(actualMessage));
+	}
+	
 	@Test
 	void testUpdate() {
 		Person entity = input.getMockPerson(1L);
@@ -101,15 +140,28 @@ class PersonServicesTest {
 		assertEquals(result.getGender(),"");
 		assertEquals(result.getLastName(),"");
 	}
-
+	
 	@Test
-	void testDelete() {
-		fail("Not yet implemented");
+	void testUpdateWithNullPerson() {
+		RequiredObjectIsNullException exception = assertThrows(RequiredObjectIsNullException.class, () -> {
+			service.create(null);
+		});
+		
+		String expectedMessage = "It is not allowed to write a null object!";
+		String actualMessage = exception.getMessage();
+		
+		assertTrue(expectedMessage.equals(actualMessage));
 	}
+//
+//	@Test
+//	void testDelete() {
+//		fail("Not yet implemented");
+//	}
 
-	@Test
-	void testCreateV2() {
-		fail("Not yet implemented");
-	}
+//	@Test
+//	void testCreateV2() {
+//		fail("Not yet implemented");
+//	}
 
 }
+	

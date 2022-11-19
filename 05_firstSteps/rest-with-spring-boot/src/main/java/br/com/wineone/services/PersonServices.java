@@ -12,6 +12,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import br.com.wineone.controllers.PersonController;
 import br.com.wineone.data.vo.v1.PersonVO;
 import br.com.wineone.data.vo.v2.PersonVOV2;
+import br.com.wineone.exceptions.RequiredObjectIsNullException;
 import br.com.wineone.exceptions.ResourceNotFoundException;
 import br.com.wineone.mapper.DozerMapper;
 import br.com.wineone.mapper.custom.PersonMapper;
@@ -48,8 +49,11 @@ public class PersonServices {
 		return persons;
 	}
 	
-	public PersonVO create(PersonVO personVo) {
+	public PersonVO create(PersonVO personVo) throws RequiredObjectIsNullException {
 		logger.info("creating a person");
+		
+		if(personVo == null) throw new RequiredObjectIsNullException();
+		
 		personVo.setKey((long) 1);
 		System.out.println(personVo.getKey());
 		var entity = DozerMapper.parseObject(personVo, Person.class);
@@ -59,8 +63,12 @@ public class PersonServices {
 		return vo;
 	}
 	
-	public PersonVO update(PersonVO personVo) {
+	public PersonVO update(PersonVO personVo) throws RequiredObjectIsNullException {
 		logger.info("updating a PersonVO");
+		
+		if(personVo == null) throw new RequiredObjectIsNullException();
+		
+		
 		Person per = personRepository.findById(personVo.getKey()).orElseThrow(() -> new ResourceNotFoundException("no records found for this id"));
 		per.setFirstName(personVo.getFirstName());
 		per.setLastName(personVo.getLastName());

@@ -1,6 +1,7 @@
 package br.com.wineone.models;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -8,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 
@@ -26,8 +28,18 @@ public class Person implements Serializable {
 	private String address;
 	@Column(nullable = false, length = 6)
 	private String gender;
+	@OneToMany(mappedBy="author")
+	private Collection<Book> books;
 	
 	
+	public Collection<Book> getBooks() {
+		return books;
+	}
+
+	public void setBooks(Collection<Book> books) {
+		this.books = books;
+	}
+
 	public Person() {
 		super();
 	}
@@ -62,12 +74,12 @@ public class Person implements Serializable {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(address, firstName, gender, id, lastName);
+		return Objects.hash(address, books, firstName, gender, id, lastName);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -77,9 +89,11 @@ public class Person implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Person other = (Person) obj;
-		return Objects.equals(address, other.address) && Objects.equals(firstName, other.firstName)
-				&& Objects.equals(gender, other.gender) && id == other.id && Objects.equals(lastName, other.lastName);
+		return Objects.equals(address, other.address) && Objects.equals(books, other.books)
+				&& Objects.equals(firstName, other.firstName) && Objects.equals(gender, other.gender)
+				&& Objects.equals(id, other.id) && Objects.equals(lastName, other.lastName);
 	}
+	
 
 
 }

@@ -55,10 +55,8 @@ public class PersonServices {
 		if(personVo == null) throw new RequiredObjectIsNullException();
 		
 		personVo.setKey((long) 1);
-		System.out.println(personVo.getKey());
 		var entity = DozerMapper.parseObject(personVo, Person.class);
 		PersonVO vo = DozerMapper.parseObject(personRepository.save(entity),PersonVO.class);
-		System.out.println(vo.getKey());
 		vo.add(linkTo(methodOn(PersonController.class).findById(vo.getKey())).withSelfRel());
 		return vo;
 	}

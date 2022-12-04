@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,7 +29,7 @@ public class Person implements Serializable {
 	private String address;
 	@Column(nullable = false, length = 6)
 	private String gender;
-	@OneToMany(mappedBy="author")
+	@OneToMany(mappedBy="author",cascade = CascadeType.ALL)
 	private Collection<Book> books;
 	
 	

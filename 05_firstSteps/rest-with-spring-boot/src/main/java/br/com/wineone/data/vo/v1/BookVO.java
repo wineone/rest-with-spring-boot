@@ -8,17 +8,24 @@ import org.springframework.hateoas.RepresentationModel;
 
 public class BookVO extends RepresentationModel<BookVO> implements Serializable {
 	
-	
+	private Long id;
 	private Long authorId;
 	private Date launchDate;
 	private float price;
 	private String title;
 	
-	private BookVO() {
+	public BookVO() {
 		super();
 	}
 	
 	
+	public Long getId() {
+		return id;
+	}
+	
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	@Override
 	public int hashCode() {

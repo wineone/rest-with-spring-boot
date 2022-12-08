@@ -1,6 +1,7 @@
 package br.com.wineone.models;
 
 import java.util.Date;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -66,5 +67,23 @@ public class Book {
 	}
 	public void setTitle(String title) {
 		this.title = title;
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(author, id, launchDate, price, title);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Book other = (Book) obj;
+		return Objects.equals(author, other.author) && Objects.equals(id, other.id)
+				&& Objects.equals(launchDate, other.launchDate)
+				&& Float.floatToIntBits(price) == Float.floatToIntBits(other.price)
+				&& Objects.equals(title, other.title);
 	}
 }	

@@ -15,6 +15,7 @@ import br.com.wineone.controllers.BookController;
 import br.com.wineone.controllers.PersonController;
 import br.com.wineone.data.vo.v1.BookVO;
 import br.com.wineone.data.vo.v1.PersonVO;
+import br.com.wineone.exceptions.RequiredObjectIsNullException;
 import br.com.wineone.exceptions.ResourceNotFoundException;
 import br.com.wineone.mapper.custom.BookMapper;
 import br.com.wineone.models.Book;
@@ -37,14 +38,15 @@ public class BookServices {
 	
 	public BookVO create(BookVO bookVo) {
 		logger.info("creating a book");
+		
+		if(bookVo == null) throw new RequiredObjectIsNullException();
 
 		Optional<Person> per = personRepository.findById(bookVo.getAuthorId());
 		if(!per.isPresent()) {
 			throw new ResourceNotFoundException("this author not exists in the db");
 		}
-		
 		Book book = BookMapper.convertVoToEntity(bookVo, per.get());
-		
+		System.out.println(book.getLaunchDate());
 		BookVO vo = BookMapper.convertEntityToVo(bookRepository.save(book));
 		vo.add(linkTo(methodOn(BookController.class).findById(vo.getId())).withSelfRel());
 		return vo;

@@ -152,16 +152,6 @@ class PersonServicesTest {
 		
 		assertTrue(expectedMessage.equals(actualMessage));
 	}
-//
-//	@Test
-//	void testDelete() {
-//		fail("Not yet implemented");
-//	}
-
-//	@Test
-//	void testCreateV2() {
-//		fail("Not yet implemented");
-//	}
 
 }
 	

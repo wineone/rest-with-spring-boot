@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+
+//@CrossOrigin
 @RestController
 @RequestMapping("api/book/v1")
 @Tag(name = "Book",description = "Endpoint for manage the books")
@@ -36,6 +39,7 @@ public class BookController {
 	private BookServices bookService;
 	
 	
+	@CrossOrigin(origins = {"http://localhost:8080"})
 	@PostMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "creates a book in the db", description = "create a book", tags = {"people"}, 
 		responses = {
@@ -57,6 +61,8 @@ public class BookController {
 		return bookService.create(bookVo);
 	}
 	
+	
+	@CrossOrigin(origins = {"https://matheuslisboa"})
 	@GetMapping(value="/all", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@Operation(summary = "Finds all books", description = "Finds all books", tags = {"book"}, 
 		responses = {

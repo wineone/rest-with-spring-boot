@@ -30,6 +30,10 @@ public class Person implements Serializable {
 	private String address;
 	@Column(nullable = false, length = 6)
 	private String gender;
+	
+	@Column(nullable = false)
+	private boolean enabled;
+	
 	@OneToMany(mappedBy="author",cascade = CascadeType.ALL)
 	private Collection<Book> books;
 	
@@ -77,9 +81,17 @@ public class Person implements Serializable {
 		this.gender = gender;
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(address, books, firstName, gender, id, lastName);
+		return Objects.hash(address, books, enabled, firstName, gender, id, lastName);
 	}
 
 	@Override
@@ -91,11 +103,10 @@ public class Person implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Person other = (Person) obj;
-		return Objects.equals(address, other.address) && Objects.equals(books, other.books)
+		return Objects.equals(address, other.address) && Objects.equals(books, other.books) && enabled == other.enabled
 				&& Objects.equals(firstName, other.firstName) && Objects.equals(gender, other.gender)
 				&& Objects.equals(id, other.id) && Objects.equals(lastName, other.lastName);
 	}
-	
 
 
 }

@@ -3,7 +3,8 @@ package br.com.wineone.unittests.mapper.mock;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.wineone.data.vo.v1.PersonVO;
+import br.com.wineone.data.vo.v1.PersonVORequest;
+import br.com.wineone.data.vo.v1.PersonVOResponse;
 import br.com.wineone.models.Person;
 
 
@@ -14,7 +15,7 @@ public class MockPerson {
         return mockEntity(0);
     }
     
-    public PersonVO mockVO() {
+    public PersonVOResponse mockVO() {
         return mockVO(0);
     }
     
@@ -26,8 +27,8 @@ public class MockPerson {
         return persons;
     }
 
-    public List<PersonVO> mockVOList() {
-        List<PersonVO> persons = new ArrayList<>();
+    public List<PersonVOResponse> mockVOList() {
+        List<PersonVOResponse> persons = new ArrayList<>();
         for (int i = 0; i < 14; i++) {
             persons.add(mockVO(i));
         }
@@ -44,8 +45,8 @@ public class MockPerson {
         return person;
     }
 
-    public PersonVO mockVO(Integer number) {
-        PersonVO person = new PersonVO();
+    public PersonVOResponse mockVO(Integer number) {
+    	PersonVOResponse person = new PersonVOResponse();
         person.setAddress("Addres Test" + number);
         person.setFirstName("First Name Test" + number);
         person.setGender(((number % 2)==0) ? "Male" : "Female");

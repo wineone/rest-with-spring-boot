@@ -1,4 +1,4 @@
-package br.com.wineone.data.vo.v1.security;
+package br.com.wineone.integrationtests.vo;
 
 import java.io.Serializable;
 import java.util.Date;

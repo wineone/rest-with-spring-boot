@@ -2,8 +2,13 @@ package br.com.wineone.integrationtests.controller.withjson;
 
 
 import static io.restassured.RestAssured.given;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,8 +23,11 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonMappingExcep
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.wineone.configs.TestConfigs;
+import br.com.wineone.data.vo.v1.PersonVOResponse;
 import br.com.wineone.integrationtests.testcontainers.AbstractIntegrationTest;
+import br.com.wineone.integrationtests.vo.AccountCredentialsVO;
 import br.com.wineone.integrationtests.vo.PersonVO;
+import br.com.wineone.integrationtests.vo.TokenVO;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -43,24 +51,46 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 		person = new PersonVO();
 	}
 	
+	@Test
+	@Order(0)
+	public void authorization() throws JsonParseException, JsonMappingException, IOException {
+		AccountCredentialsVO credentials = new AccountCredentialsVO("leandro", "admin123");
+		
+		var token = given()
+				.basePath("/auth/signin")
+				.port(TestConfigs.SERVER_PORT)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.body(credentials)
+				.when()
+				.post()
+				.then()
+				.statusCode(200)
+				.extract()
+				.body()
+				.as(TokenVO.class)
+				.getAccessToken();
+		
+		specification = new RequestSpecBuilder()
+				.addHeader(TestConfigs.HEADER_PARAM_AUTHORIZATION, "Bearer " + token)
+				.setBasePath("/api/person/v1")
+				.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+				.build();
+	}
+	
 	
 	@Test
 	@Order(1)
 	public void testCreate() throws JsonParseException, JsonMappingException, IOException {
 		
 		mockPerson();
-		specification = new RequestSpecBuilder()
-						.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
-						.setBasePath("/api/person/v1")
-						.setPort(TestConfigs.SERVER_PORT)
-						.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-						.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-						.build();
-		
+
 		
 		String content = given()
 						.spec(specification)
 						.contentType(TestConfigs.CONTENT_TYPE_JSON)
+						.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
 						.body(person)
 						.when()
 						.post()
@@ -91,18 +121,12 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 	public void testCreateWithWrongOrigin() throws JsonParseException, JsonMappingException, IOException {
 		
 		mockPerson();
-		specification = new RequestSpecBuilder()
-						.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_SEMERU)
-						.setBasePath("/api/person/v1")
-						.setPort(TestConfigs.SERVER_PORT)
-						.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-						.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-						.build();
-		
+
 		
 		String content = given()
 						.spec(specification)
 						.contentType(TestConfigs.CONTENT_TYPE_JSON)
+						.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_SEMERU)
 						.body(person)
 						.when()
 						.post()
@@ -120,18 +144,12 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 	public void testFindById() throws JsonParseException, JsonMappingException, IOException {
 		
 		mockPerson();
-		specification = new RequestSpecBuilder()
-						.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
-						.setBasePath("/api/person/v1")
-						.setPort(TestConfigs.SERVER_PORT)
-						.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-						.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-						.build();
 		
 		
 		String content = given()
 						.spec(specification)
 						.contentType(TestConfigs.CONTENT_TYPE_JSON)
+						.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
 						.pathParam("id", person.getId())
 						.when()
 						.get("{id}")
@@ -160,18 +178,11 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 	public void testFindByIdWithWrongOrigin() throws JsonParseException, JsonMappingException, IOException {
 		
 		mockPerson();
-		specification = new RequestSpecBuilder()
-						.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_SEMERU)
-						.setBasePath("/api/person/v1")
-						.setPort(TestConfigs.SERVER_PORT)
-						.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-						.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-						.build();
-		
 		
 		String content = given()
 						.spec(specification)
 						.contentType(TestConfigs.CONTENT_TYPE_JSON)
+						.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_SEMERU)
 						.pathParam("id", person.getId())
 						.when()
 						.get("{id}")
@@ -184,7 +195,137 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 		Assertions.assertEquals("Invalid CORS request",content);
 		
 	}
+	
+	@Test
+	@Order(4)
+	public void testUpdatePerson() throws JsonParseException, JsonMappingException, IOException {
+		
+		mockPerson();
+		
+		person.setGender("F");
+		person.setFirstName("joão duarte");
+		person.setLastName("da silva santos");
+		person.setAddress("rua dos outros numero 222");
+		
+		String content = given()
+				.spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
+				.body(person)
+				.when()
+				.put()
+				.then()
+				.statusCode(200)
+				.extract()
+				.body()
+				.asString();
 
+		PersonVO persistedPerson = objectMapper.readValue(content, PersonVO.class);
+		person = persistedPerson;
+		Assertions.assertTrue(person.getId() > 0);
+		Assertions.assertNotNull(person.getAddress());
+		Assertions.assertNotNull(person.getFirstName());
+		Assertions.assertNotNull(person.getLastName());
+		Assertions.assertNotNull(person.getGender());
+		
+		Assertions.assertEquals("rua dos outros numero 222",person.getAddress());
+		Assertions.assertEquals("joão duarte",person.getFirstName());
+		Assertions.assertEquals("da silva santos",person.getLastName());
+		Assertions.assertEquals("F",person.getGender());
+	}
+	
+	@Test
+	@Order(5)
+	public void testFindAllPersons() throws JsonParseException, JsonMappingException, IOException {
+		given() // creating another person
+			.spec(specification)
+			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
+			.body(person)
+			.when()
+			.post()
+			.then()
+			.statusCode(200)
+			.extract()
+			.body()
+			.asString();
+
+		String allPersons = given() // creating another person
+								.spec(specification)
+								.contentType(TestConfigs.CONTENT_TYPE_JSON)
+								.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
+								.basePath("api/person/v1/all")
+								.when()
+								.get()
+								.then()
+								.statusCode(200)
+								.extract()
+								.body()
+								.asString();
+		
+		List<PersonVOResponse> allPersonsList = Arrays.asList(objectMapper.readValue(allPersons, PersonVOResponse[].class));
+		System.out.println(allPersonsList.size());
+		assertEquals(17,allPersonsList.size());
+		
+	}
+	
+	@Test
+	@Order(6)
+	public void testDesablePerson() throws JsonParseException, JsonMappingException, IOException {
+		
+		String content = given()
+				.spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
+				.pathParam("id", person.getId())
+				.when()
+				.patch("{id}")
+				.then()
+				.statusCode(200)
+				.extract()
+				.body()
+				.asString();
+		
+		PersonVOResponse persistedPerson = objectMapper.readValue(content, PersonVOResponse.class);
+		Assertions.assertEquals(false, persistedPerson.isEnabled());
+	}
+	
+	@Test
+	@Order(7)
+	public void testDeleteAPerson() throws JsonParseException, JsonMappingException, IOException {
+		given()
+		.spec(specification)
+		.contentType(TestConfigs.CONTENT_TYPE_JSON)
+		.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
+		.pathParam("id", person.getId())
+		.when()
+		.delete("{id}")
+		.then()
+		.statusCode(204)
+		.extract()
+		.body()
+		.asString();
+		
+		
+		String allPersons = given() // creating another person
+				.spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
+				.basePath("api/person/v1/all")
+				.when()
+				.get()
+				.then()
+				.statusCode(200)
+				.extract()
+				.body()
+				.asString();
+		
+		List<PersonVOResponse> allPersonsList = Arrays.asList(objectMapper.readValue(allPersons, PersonVOResponse[].class));
+		System.out.println(allPersonsList.size());
+		assertEquals(16,allPersonsList.size());
+	}
+
+	
 
 	private void mockPerson() {
 		person.setAddress("rua dos bobos");

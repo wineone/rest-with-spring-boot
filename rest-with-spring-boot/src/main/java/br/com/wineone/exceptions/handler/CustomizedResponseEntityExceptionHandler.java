@@ -14,6 +14,7 @@ import br.com.wineone.exceptions.ExceptionResponse;
 import br.com.wineone.exceptions.InvalidJwtAuthenticationException;
 import br.com.wineone.exceptions.RequiredObjectIsNullException;
 import br.com.wineone.exceptions.ResourceNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @ControllerAdvice

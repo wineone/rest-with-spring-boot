@@ -3,7 +3,8 @@ package br.com.wineone.mocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.wineone.data.vo.v1.PersonVO;
+import br.com.wineone.data.vo.v1.PersonVORequest;
+import br.com.wineone.data.vo.v1.PersonVOResponse;
 import br.com.wineone.models.Person;
 
 public class MockPerson {
@@ -17,12 +18,30 @@ public class MockPerson {
 		return p;
 	}
 	
-	public static PersonVO getMockVO(long id) {
-		PersonVO p =  new PersonVO();
+	public static Person getMockPerson() {
+		Person p =  new Person();
+		p.setAddress("");
+		p.setFirstName("");
+		p.setGender("");
+		p.setLastName("");
+		return p;
+	}
+	
+	public static PersonVOResponse getMockVOResponse(long id) {
+		PersonVOResponse p =  new PersonVOResponse();
 		p.setAddress("");
 		p.setFirstName("");
 		p.setGender("");
 		p.setKey(id);
+		p.setLastName("");
+		return p;
+	}
+	
+	public static PersonVORequest getMockVORequest() {
+		PersonVORequest p =  new PersonVORequest();
+		p.setAddress("");
+		p.setFirstName("");
+		p.setGender("");
 		p.setLastName("");
 		return p;
 	}

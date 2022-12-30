@@ -12,12 +12,10 @@ import com.github.dozermapper.core.Mapping;
 
 
 @JsonPropertyOrder({"id","address","firstName","lasName","gender"})
-public class PersonVO extends RepresentationModel<PersonVO> implements Serializable {
+public class PersonVORequest extends RepresentationModel<PersonVORequest> implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	@Mapping("id")
-	@JsonProperty("id")
-	private Long key;
+
 //	@JsonProperty("first_name")
 	private String firstName;
 //	@JsonProperty("last_name")
@@ -26,8 +24,10 @@ public class PersonVO extends RepresentationModel<PersonVO> implements Serializa
 //	@JsonIgnore()
 	private String gender;
 	
+	private boolean enabled;
 	
-	public PersonVO() {
+	
+	public PersonVORequest() {
 		super();
 	}
 	
@@ -58,13 +58,13 @@ public class PersonVO extends RepresentationModel<PersonVO> implements Serializa
 	}
 
 
-	public Long getKey() {
-		return key;
+	public boolean isEnabled() {
+		return enabled;
 	}
 
 
-	public void setKey(Long key) {
-		this.key = key;
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 
@@ -72,7 +72,7 @@ public class PersonVO extends RepresentationModel<PersonVO> implements Serializa
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(address, firstName, gender, key, lastName);
+		result = prime * result + Objects.hash(address, enabled, firstName, gender, lastName);
 		return result;
 	}
 
@@ -85,9 +85,11 @@ public class PersonVO extends RepresentationModel<PersonVO> implements Serializa
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PersonVO other = (PersonVO) obj;
-		return Objects.equals(address, other.address) && Objects.equals(firstName, other.firstName)
-				&& Objects.equals(gender, other.gender) && Objects.equals(key, other.key)
+		PersonVORequest other = (PersonVORequest) obj;
+		return Objects.equals(address, other.address) && enabled == other.enabled
+				&& Objects.equals(firstName, other.firstName) && Objects.equals(gender, other.gender)
 				&& Objects.equals(lastName, other.lastName);
 	}
+
+	
 }

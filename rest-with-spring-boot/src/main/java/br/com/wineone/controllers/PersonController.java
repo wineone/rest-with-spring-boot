@@ -3,17 +3,23 @@ package br.com.wineone.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 //import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 //import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.wineone.data.vo.v1.PersonVO;
+import br.com.wineone.data.vo.v1.PersonVORequest;
+import br.com.wineone.data.vo.v1.PersonVOResponse;
 import br.com.wineone.exceptions.ResourceNotFoundException;
 import br.com.wineone.services.PersonServices;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +45,7 @@ public class PersonController {
 					content = 
 						@Content(
 							mediaType = "application/json",
-							schema = @Schema(implementation = PersonVO.class)
+							schema = @Schema(implementation = PersonVORequest.class)
 						)	 
 			),
 			@ApiResponse(description = "No content", responseCode = "204", content = @Content),
@@ -49,7 +55,7 @@ public class PersonController {
 			@ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content),
 		}
 	)
-	public PersonVO findById(
+	public PersonVOResponse findById(
 			@PathVariable(value = "id") Long id
 	) {
 		return personServices.findById(id);
@@ -62,7 +68,7 @@ public class PersonController {
 					content = { 
 						@Content(
 								mediaType = "application/json",
-								array = @ArraySchema(schema = @Schema(implementation = PersonVO.class))
+								array = @ArraySchema(schema = @Schema(implementation = PersonVORequest.class))
 						) 
 					}
 				),
@@ -72,8 +78,12 @@ public class PersonController {
 				@ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content),
 		}
 	)
-	public List<PersonVO> findAll() throws ResourceNotFoundException {
-		return personServices.findAll();
+	public ResponseEntity<Page<PersonVOResponse>> findAll(
+			@RequestParam(value = "page", defaultValue = "0") Integer page,
+			@RequestParam(value = "limit", defaultValue = "12") Integer limit
+			) throws ResourceNotFoundException {
+		Pageable pageable = PageRequest.of(page, limit);
+		return ResponseEntity.ok(personServices.findAll(pageable));
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -84,7 +94,7 @@ public class PersonController {
 					content = 
 						@Content(
 							mediaType = "application/json",
-							schema = @Schema(implementation = PersonVO.class)
+							schema = @Schema(implementation = PersonVORequest.class)
 						)	 
 			),
 			@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
@@ -92,7 +102,7 @@ public class PersonController {
 			@ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content),
 		}
 	)
-	public PersonVO create(@RequestBody() PersonVO PersonVO) {
+	public PersonVOResponse create(@RequestBody() PersonVORequest PersonVO) {
 		return personServices.create(PersonVO);
 	}
 	
@@ -109,7 +119,7 @@ public class PersonController {
 					content = 
 						@Content(
 							mediaType = "application/json",
-							schema = @Schema(implementation = PersonVO.class)
+							schema = @Schema(implementation = PersonVORequest.class)
 						)	 
 			),
 			@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
@@ -118,7 +128,7 @@ public class PersonController {
 			@ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content),
 		}
 	)
-	public PersonVO update(@RequestBody() PersonVO PersonVO) {
+	public PersonVOResponse update(@RequestBody() PersonVOResponse PersonVO) {
 		return personServices.update(PersonVO);
 	}
 	
@@ -137,6 +147,30 @@ public class PersonController {
 	) {
 		personServices.delete(id);
 		return ResponseEntity.noContent().build();
+	}
+	
+	@PatchMapping(value="/{id}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@Operation(summary = "Desable a person in the db", description = "Deable a person in the db", tags = {"people"}, 
+		responses = {
+			@ApiResponse(
+					description = "Success", responseCode = "200", 
+					content = 
+						@Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = PersonVORequest.class)
+						)	 
+			),
+			@ApiResponse(description = "No content", responseCode = "204", content = @Content),
+			@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+			@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+			@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+			@ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content),
+		}
+	)
+	public PersonVOResponse desablePerson(
+			@PathVariable(value = "id") Long id
+	) {
+		return personServices.desablePerson(id);
 	}
 	
 }

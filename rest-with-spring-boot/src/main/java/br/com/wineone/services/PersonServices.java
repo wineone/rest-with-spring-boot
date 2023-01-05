@@ -10,6 +10,11 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
 
 import br.com.wineone.controllers.PersonController;
@@ -36,6 +41,9 @@ public class PersonServices {
 	@Autowired
 	private PersonMapper personMapper;
 	
+	@Autowired
+	PagedResourcesAssembler<PersonVOResponse> assembler;
+	
 	
 	public PersonVOResponse findById(Long id) {
 		logger.info("finding one PersonVO!");
@@ -55,7 +63,7 @@ public class PersonServices {
 		return vo;
 	}
 	
-	public Page<PersonVOResponse> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<PersonVOResponse>> findAll(Pageable pageable) {
 		logger.info("finding all persons!");
 		
 		var personPage = personRepository.findAll(pageable);
@@ -66,7 +74,23 @@ public class PersonServices {
 				p -> p.add(linkTo(methodOn(PersonController.class).findById(p.getKey())).withSelfRel())
 		);
 		
-		return personVosPage;
+		Link link = linkTo(methodOn(PersonController.class).findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(personVosPage,link);
+	}
+	
+	public PagedModel<EntityModel<PersonVOResponse>> findByUsername(String fistName,Pageable pageable) {
+		logger.info("finding persons by name!");
+		
+		var personPage = personRepository.findPersonsByName(fistName, pageable);
+		
+		Page<PersonVOResponse> personVosPage = personPage.map(p -> DozerMapper.parseObject(p,PersonVOResponse.class));
+		
+		personVosPage.map(
+				p -> p.add(linkTo(methodOn(PersonController.class).findById(p.getKey())).withSelfRel())
+		);
+		
+		Link link = linkTo(methodOn(PersonController.class).findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(personVosPage,link);
 	}
 	
 	public PersonVOResponse create(PersonVORequest personVo) throws RequiredObjectIsNullException {

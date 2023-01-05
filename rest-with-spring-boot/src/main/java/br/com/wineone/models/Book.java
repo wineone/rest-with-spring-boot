@@ -20,9 +20,7 @@ import jakarta.persistence.Table;
 @JsonIgnoreProperties({"author"})
 public class Book {
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "book_author_id")
-	private Person author;
+	
 	
 	@Id()
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -34,6 +32,10 @@ public class Book {
 	private float price;
 	@Column()
 	private String title;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "book_author_id")
+	private Person author;
 	
 	
 	public Person getAuthor() {

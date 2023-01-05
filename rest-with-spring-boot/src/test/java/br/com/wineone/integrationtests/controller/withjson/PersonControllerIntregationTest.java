@@ -28,6 +28,7 @@ import br.com.wineone.integrationtests.testcontainers.AbstractIntegrationTest;
 import br.com.wineone.integrationtests.vo.AccountCredentialsVO;
 import br.com.wineone.integrationtests.vo.PersonVO;
 import br.com.wineone.integrationtests.vo.TokenVO;
+import br.com.wineone.integrationtests.vo.WrapperPersonVO;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -253,6 +254,7 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 		String allPersons = given() // creating another person
 								.spec(specification)
 								.contentType(TestConfigs.CONTENT_TYPE_JSON)
+								.queryParams("page",0, "limit",100000, "direction", "asc")
 								.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
 								.basePath("api/person/v1/all")
 								.when()
@@ -263,9 +265,10 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 								.body()
 								.asString();
 		
-		List<PersonVOResponse> allPersonsList = Arrays.asList(objectMapper.readValue(allPersons, PersonVOResponse[].class));
+		WrapperPersonVO wrapper = objectMapper.readValue(allPersons, WrapperPersonVO.class);
+		List<br.com.wineone.integrationtests.vo.PersonVOResponse> allPersonsList = wrapper.getEmbedded().getPersons();
 		System.out.println(allPersonsList.size());
-		assertEquals(17,allPersonsList.size());
+		assertEquals(1017,allPersonsList.size());
 		
 	}
 	
@@ -310,6 +313,7 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 		String allPersons = given() // creating another person
 				.spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.queryParams("page",0, "limit",100000, "direction", "asc")
 				.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_MATHEUS)
 				.basePath("api/person/v1/all")
 				.when()
@@ -320,9 +324,9 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 				.body()
 				.asString();
 		
-		List<PersonVOResponse> allPersonsList = Arrays.asList(objectMapper.readValue(allPersons, PersonVOResponse[].class));
-		System.out.println(allPersonsList.size());
-		assertEquals(16,allPersonsList.size());
+		WrapperPersonVO wrapper = objectMapper.readValue(allPersons, WrapperPersonVO.class);
+		List<br.com.wineone.integrationtests.vo.PersonVOResponse> allPersonsList = wrapper.getEmbedded().getPersons();
+		assertEquals(1016,allPersonsList.size());
 	}
 
 	

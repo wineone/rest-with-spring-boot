@@ -1,13 +1,13 @@
 package br.com.wineone.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.websocket.server.PathParam;
 
 @RestController
 @RequestMapping("api/person/v1")
@@ -80,7 +81,7 @@ public class PersonController {
 				@ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content),
 		}
 	)
-	public ResponseEntity<Page<PersonVOResponse>> findAll(
+	public ResponseEntity<PagedModel<EntityModel<PersonVOResponse>>> findAll(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "limit", defaultValue = "12") Integer limit,
 			@RequestParam(value = "direction", defaultValue = "asc") String direction
@@ -90,6 +91,36 @@ public class PersonController {
 		Pageable pageable = PageRequest.of(page, limit, Sort.by(sortDirection,"firstName"));
 		
 		return ResponseEntity.ok(personServices.findAll(pageable));
+	}
+	
+	@RequestMapping(value="/findPersonByName/{firstName}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@Operation(summary = "Finds people by name", description = "Finds people by name", tags = {"people"}, 
+		responses = {
+				@ApiResponse(description = "Success", responseCode = "200", 
+					content = { 
+						@Content(
+								mediaType = "application/json",
+								array = @ArraySchema(schema = @Schema(implementation = PersonVORequest.class))
+						) 
+					}
+				),
+				@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+				@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+				@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+				@ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content),
+		}
+	)
+	public ResponseEntity<PagedModel<EntityModel<PersonVOResponse>>> findPersonsByName(
+			@RequestParam(value = "page", defaultValue = "0") Integer page,
+			@RequestParam(value = "limit", defaultValue = "12") Integer limit,
+			@RequestParam(value = "direction", defaultValue = "asc") String direction,
+			@PathVariable(value = "firstName") String firstname
+			) throws ResourceNotFoundException {
+		
+		var sortDirection = "asc".equalsIgnoreCase(direction) ? Direction.ASC : Direction.DESC;
+		Pageable pageable = PageRequest.of(page, limit, Sort.by(sortDirection,"firstName"));
+		
+		return ResponseEntity.ok(personServices.findByUsername(firstname,pageable));
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, consumes = MediaType.APPLICATION_JSON_VALUE)

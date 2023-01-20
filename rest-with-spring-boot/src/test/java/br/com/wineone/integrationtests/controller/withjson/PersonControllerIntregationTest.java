@@ -2,6 +2,7 @@ package br.com.wineone.integrationtests.controller.withjson;
 
 
 import static io.restassured.RestAssured.given;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,6 +22,8 @@ import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonParseException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.DeserializationFeature;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonMappingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import br.com.wineone.configs.TestConfigs;
 import br.com.wineone.data.vo.v1.PersonVOResponse;
@@ -327,6 +330,44 @@ public class PersonControllerIntregationTest extends AbstractIntegrationTest{
 		WrapperPersonVO wrapper = objectMapper.readValue(allPersons, WrapperPersonVO.class);
 		List<br.com.wineone.integrationtests.vo.PersonVOResponse> allPersonsList = wrapper.getEmbedded().getPersons();
 		assertEquals(1016,allPersonsList.size());
+	}
+	
+	@Test
+	@Order(8)
+	public void testFindByName() throws JsonParseException, IOException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
+				.pathParam("firstName", "Abbe")
+				.queryParams("page", 0, "size", 6, "direction", "asc")
+					.when()
+					.get("findPersonByName/{firstName}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		WrapperPersonVO wrapper = objectMapper.readValue(content, WrapperPersonVO.class);
+		var people = wrapper.getEmbedded().getPersons();
+		
+		br.com.wineone.integrationtests.vo.PersonVOResponse foundPersonOne = people.get(0);
+		
+//		assertNotNull(foundPersonOne.getId());
+		assertNotNull(foundPersonOne.getFirstName());
+		assertNotNull(foundPersonOne.getLastName());
+		assertNotNull(foundPersonOne.getAddress());
+		assertNotNull(foundPersonOne.getGender());
+
+		assertTrue(foundPersonOne.isEnabled());
+		
+//		assertEquals(1, foundPersonOne.getId());
+		
+		assertEquals("Abbe", foundPersonOne.getFirstName());
+		assertEquals("Quilleash", foundPersonOne.getLastName());
+		assertEquals("1 South Avenue", foundPersonOne.getAddress());
+		assertEquals("Female", foundPersonOne.getGender());
 	}
 
 	

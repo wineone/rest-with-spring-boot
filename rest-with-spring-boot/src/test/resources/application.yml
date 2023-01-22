@@ -3,7 +3,7 @@ server:
 cors:
   originPatterns: http://localhost:8080,http://localhost:3000,https://matheuslisboa
 file:
-  upload-dir: /home/matheus/Imagens/upload
+  upload-dir: /home/runner/work/rest-with-spring-boot/upload
 security:
   jwt:
     token:
